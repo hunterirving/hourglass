@@ -130,6 +130,20 @@
 			z-index: 1;
 		}
 
+		.time-unit {
+			display: inline-block;
+		}
+
+		@media (max-width: 600px) {
+			.time-unit {
+				display: block;
+				line-height: 1.2;
+			}
+			
+			.timer-display {
+				font-size: 28px; /* Slightly smaller font on mobile */
+			}
+		}
 	</style>
 </head>
 <body>
@@ -219,13 +233,17 @@
 				const minutes = Math.floor(seconds / 60);
 				const hours = Math.floor(minutes / 60);
 
+				const parts = [];
+				
 				if (hours > 0) {
-					return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''} ${seconds % 60} second${seconds % 60 !== 1 ? 's' : ''}`;
-				} else if (minutes > 0) {
-					return `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds % 60} second${seconds % 60 !== 1 ? 's' : ''}`;
-				} else {
-					return `${seconds} second${seconds !== 1 ? 's' : ''}`;
+					parts.push(`<span class="time-unit">${hours} hour${hours !== 1 ? 's' : ''}</span>`);
 				}
+				if (minutes > 0) {
+					parts.push(`<span class="time-unit">${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''}</span>`);
+				}
+				parts.push(`<span class="time-unit">${seconds % 60} second${seconds % 60 !== 1 ? 's' : ''}</span>`);
+
+				return parts.join(' ');
 			}
 
 			renderTimer(timer) {
@@ -255,7 +273,6 @@
 
 			renderAllTimers() {
 				document.getElementById('timers-container').innerHTML = '';
-				// Render timers in reverse order to maintain newest-first order
 				[...this.timers].reverse().forEach(timer => this.renderTimer(timer));
 			}
 
@@ -267,7 +284,7 @@
 					if (timer.isRunning) {
 						totalElapsed += Date.now() - timer.startTime;
 					}
-					displayElement.textContent = this.formatTime(totalElapsed);
+					displayElement.innerHTML = this.formatTime(totalElapsed);
 				}
 			}
 
