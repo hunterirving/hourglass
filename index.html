@@ -255,7 +255,8 @@
 
 			renderAllTimers() {
 				document.getElementById('timers-container').innerHTML = '';
-				this.timers.forEach(timer => this.renderTimer(timer));
+				// Render timers in reverse order to maintain newest-first order
+				[...this.timers].reverse().forEach(timer => this.renderTimer(timer));
 			}
 
 			updateTimerDisplay(timer) {
