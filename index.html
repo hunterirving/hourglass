@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Time Tracker</title>
+	<title>hourglass</title>
 	<style>
 		body {
-			font-family: Arial, sans-serif;
+			font-family: monospace;
 			max-width: 800px;
 			margin: 0 auto;
 			padding: 20px;
@@ -14,82 +15,121 @@
 		}
 
 		#add-timer {
-			width: 100%;
-			padding: 15px;
-			font-size: 24px;
-			background-color: #4CAF50;
+			width: 60px;
+			height: 60px;
+			font-size: 32px;
+			background-color: #7700ff;
 			color: white;
 			border: none;
-			border-radius: 5px;
+			border-radius: 50%;
 			cursor: pointer;
-			margin-bottom: 20px;
+			margin: 0 auto 40px auto;
+			display: block;
+			line-height: 1;
+			padding: 0;
+			transition: background-color 0.1s ease-in-out;
 		}
 
 		#add-timer:hover {
-			background-color: #45a049;
+			background-color: #7700ffdd;
+			transition: background-color 0.1s ease-in-out;
 		}
 
 		.timer {
 			background-color: white;
 			padding: 20px;
-			margin-bottom: 15px;
-			border-radius: 5px;
+			margin-bottom: 30px;
+			border-radius: 15px;
 			box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+			position: relative;
 		}
 
 		.timer-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 10px;
+			margin-bottom: 15px;
 		}
 
 		.timer-title {
-			font-size: 18px;
-			padding: 5px;
+			font-size: 22px;
+			margin-right: 30px;
+			border-radius: 8px;
 			border: 1px solid transparent;
-			border-radius: 3px;
 			flex-grow: 1;
-			margin-right: 10px;
+			font-family: monospace;
 		}
 
 		.timer-title:focus {
-			border-color: #4CAF50;
 			outline: none;
 		}
 
 		.timer-display {
-			font-size: 24px;
+			font-size: 36px;
 			color: #333;
-			margin: 10px 0;
+			margin: 20px 0;
+			text-align: center;
+			font-weight: bold;
 		}
 
-		.timer-controls button {
-			padding: 8px 15px;
-			margin-right: 10px;
-			border: none;
-			border-radius: 3px;
-			cursor: pointer;
-			font-size: 14px;
-		}
-
-		.pause-btn {
-			background-color: #ff9800;
-			color: white;
-		}
-
-		.pause-btn:hover {
-			background-color: #f57c00;
+		.timer-controls {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
 		.delete-btn {
-			background-color: #f44336;
-			color: white;
+			position: absolute;
+			right: 15px;
+			top: 30px;
+			transform: translateY(-50%);
+			background: none;
+			border: none;
+			font-size: 30px;
+			cursor: pointer;
+			color: #999;
+			padding: 5px;
+			line-height: 1;
+			height: 40px;
+			width: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 
-		.delete-btn:hover {
-			background-color: #d32f2f;
+		.hourglass-container {
+			position: relative;
+			width: 40px;
+			height: 40px;
+			cursor: pointer;
+			margin-bottom: 20px;
 		}
+
+		.hourglass {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 40px;
+			pointer-events: none;
+		}
+
+		.hourglass.running {
+			opacity: 1;
+			transition: opacity 0.5s ease-in-out;
+			z-index: 2;
+		}
+
+		.hourglass.paused {
+			opacity: 1;
+			z-index: 1;
+		}
+
 	</style>
 </head>
 <body>
@@ -148,6 +188,11 @@
 			toggleTimer(id) {
 				const timer = this.timers.find(t => t.id === id);
 				if (timer) {
+					const timerElement = document.querySelector(`[data-timer-id="${id}"]`);
+					const runningHourglass = timerElement.querySelector('.hourglass.running');
+					const pausedHourglass = timerElement.querySelector('.hourglass.paused');
+					runningHourglass.style.opacity = timer.isRunning ? '0' : '1';
+
 					if (timer.isRunning) {
 						timer.elapsed += Date.now() - timer.startTime;
 						timer.isRunning = false;
@@ -155,6 +200,7 @@
 						timer.startTime = Date.now();
 						timer.isRunning = true;
 					}
+					
 					this.saveState();
 					this.updateTimerDisplay(timer);
 				}
@@ -174,9 +220,9 @@
 				const hours = Math.floor(minutes / 60);
 
 				if (hours > 0) {
-					return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''}`;
+					return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes % 60} minute${minutes % 60 !== 1 ? 's' : ''} ${seconds % 60} second${seconds % 60 !== 1 ? 's' : ''}`;
 				} else if (minutes > 0) {
-					return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+					return `${minutes} minute${minutes !== 1 ? 's' : ''} ${seconds % 60} second${seconds % 60 !== 1 ? 's' : ''}`;
 				} else {
 					return `${seconds} second${seconds !== 1 ? 's' : ''}`;
 				}
@@ -188,13 +234,16 @@
 				timerElement.dataset.timerId = timer.id;
 
 				timerElement.innerHTML = `
+					<button class="delete-btn">×</button>
 					<div class="timer-header">
 						<input class="timer-title" type="text" value="${timer.title}">
 					</div>
 					<div class="timer-display"></div>
 					<div class="timer-controls">
-						<button class="pause-btn">${timer.isRunning ? 'Pause' : 'Start'}</button>
-						<button class="delete-btn">Delete</button>
+						<div class="hourglass-container">
+							<div class="hourglass paused">⌛</div>
+							<div class="hourglass running" style="opacity: ${timer.isRunning ? '1' : '0'}">⏳</div>
+						</div>
 					</div>
 				`;
 
@@ -213,15 +262,11 @@
 				const timerElement = document.querySelector(`[data-timer-id="${timer.id}"]`);
 				if (timerElement) {
 					const displayElement = timerElement.querySelector('.timer-display');
-					const pauseButton = timerElement.querySelector('.pause-btn');
-					
 					let totalElapsed = timer.elapsed;
 					if (timer.isRunning) {
 						totalElapsed += Date.now() - timer.startTime;
 					}
-
 					displayElement.textContent = this.formatTime(totalElapsed);
-					pauseButton.textContent = timer.isRunning ? 'Pause' : 'Start';
 				}
 			}
 
@@ -234,7 +279,7 @@
 
 					const timerId = parseInt(timerElement.dataset.timerId);
 
-					if (e.target.classList.contains('pause-btn')) {
+					if (e.target.closest('.hourglass-container')) {
 						this.toggleTimer(timerId);
 					} else if (e.target.classList.contains('delete-btn')) {
 						this.deleteTimer(timerId);
