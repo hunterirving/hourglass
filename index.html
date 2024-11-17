@@ -22,7 +22,6 @@
 		#add-timer {
 			width: 60px;
 			height: 60px;
-			font-size: 32px;
 			background-color: #7700ff;
 			color: white;
 			border: none;
@@ -30,9 +29,29 @@
 			cursor: pointer;
 			margin: 0 auto 40px auto;
 			display: block;
-			line-height: 1;
+			position: relative;
 			padding: 0;
 			transition: background-color 0.1s ease-in-out;
+		}
+
+		#add-timer::before,
+		#add-timer::after {
+			content: '';
+			position: absolute;
+			background-color: white;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		#add-timer::before {
+			width: 20px;
+			height: 3px;
+		}
+
+		#add-timer::after {
+			width: 3px;
+			height: 20px;
 		}
 
 		#add-timer:hover {
@@ -157,7 +176,7 @@
 	</style>
 </head>
 <body>
-	<button id="add-timer">+</button>
+	<button id="add-timer"></button>
 	<div id="timers-container"></div>
 
 	<script>
